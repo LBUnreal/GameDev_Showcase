@@ -6,6 +6,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "BlasterSamGameMode.generated.h"
 
+class ATank;
+class ABlasterSamCharacter;
+
 /**
  *  Simple GameMode for a third person game
  */
@@ -18,6 +21,14 @@ public:
 	
 	/** Constructor */
 	ABlasterSamGameMode();
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	ATank* TankPlayer;
+	ABlasterSamCharacter* InfantryPlayer;
+	void InitializeNPCTurretTargeting();
 };
 
 
