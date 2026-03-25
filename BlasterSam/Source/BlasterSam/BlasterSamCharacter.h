@@ -55,11 +55,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* ShootAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* SwapWeaponAction;
-
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	TArray<TSubclassOf<AGun>> GunClasses;
+	TSubclassOf<AGun> GunClass;
 	AGun* Weapon;
 
 public:
@@ -115,16 +112,10 @@ public:
 
 	void Shoot();
 
-	void SwapWeapons();
-
 private:
 	UFUNCTION()
 	void OnDamageTaken(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	float Health;
-	int CurrentGunIndex = -1;
-
-	void UpdateWeapon(int UpdatedWeaponIndex);
-	int GetNextWeaponIndex();
 };
 
