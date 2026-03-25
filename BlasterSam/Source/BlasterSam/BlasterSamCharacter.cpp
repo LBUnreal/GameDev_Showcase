@@ -23,17 +23,8 @@ void ABlasterSamCharacter::BeginPlay()
 
 	Health = MaxHealth;
 	UpdateHUD();
-	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
-	Weapon = GetWorld()->SpawnActor<AGun>(GunClass);
-
+	UpdateWeapon(0);
 	OnTakeAnyDamage.AddDynamic(this, &ABlasterSamCharacter::OnDamageTaken);
-
-	if (Weapon)
-	{
-		Weapon->SetOwner(this);
-		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-		Weapon->SetOwnerController(GetController());
-	}
 }
 
 ABlasterSamCharacter::ABlasterSamCharacter()
@@ -92,6 +83,9 @@ void ABlasterSamCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		//Shooting
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &ABlasterSamCharacter::Shoot);
+
+		//Swaping Guns
+		EnhancedInputComponent->BindAction(SwapWeaponAction, ETriggerEvent::Completed, this, &ABlasterSamCharacter::SwapWeapons);
 	}
 	else
 	{
@@ -182,6 +176,15 @@ void ABlasterSamCharacter::Shoot()
 	}
 }
 
+void ABlasterSamCharacter::SwapWeapons()
+{
+	UpdateWeapon(GetNextWeaponIndex());
+	if (Weapon)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Swapping weapon to %s!"), *Weapon->GetName());
+	}
+}
+
 void ABlasterSamCharacter::OnDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (IsAlive)
@@ -196,4 +199,42 @@ void ABlasterSamCharacter::OnDamageTaken(AActor* DamagedActor, float Damage, con
 			DetachFromControllerPendingDestroy();
 		}
 	}
+}
+
+void ABlasterSamCharacter::UpdateWeapon(int UpdatedWeaponIndex)
+{
+	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+
+	//Update the gun if the index is valid
+	if (UpdatedWeaponIndex >= 0 && UpdatedWeaponIndex < GunClasses.Num() && UpdatedWeaponIndex != CurrentGunIndex)
+	{
+		//Destroy the weapon before updating it
+		if (Weapon)
+		{
+			Weapon->Destroy();
+		}
+
+		Weapon = GetWorld()->SpawnActor<AGun>(GunClasses[UpdatedWeaponIndex]);
+
+		if (Weapon)
+		{
+			Weapon->SetOwner(this);
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+			Weapon->SetOwnerController(GetController());
+			CurrentGunIndex = UpdatedWeaponIndex;
+		}
+	}
+}
+
+int ABlasterSamCharacter::GetNextWeaponIndex()
+{
+	int index = -1;
+
+	//While we have at least one gun class to use
+	if (GunClasses.Num() > 0)
+	{
+		index = (CurrentGunIndex + 1) % GunClasses.Num();
+	}
+
+	return index;
 }
