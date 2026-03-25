@@ -41,11 +41,17 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USoundBase* ImpactSound;
 
+	UPROPERTY(VisibleAnywhere)
+	USkeletalMeshComponent* GunSkeletalMeshComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UNiagaraComponent* MuzzleFlashParticleSystem;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void PullTrigger();
+	virtual void PullTrigger();
 
 	AController* GetOwnerController();
 	void SetOwnerController(AController* Controller);
@@ -55,13 +61,6 @@ private:
 	USceneComponent* GunSceneComponent;
 
 	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* GunSkeletalMeshComponent;
-
-	UPROPERTY(VisibleAnywhere)
 	AController* OwnerController = nullptr;
-
-
-	UPROPERTY(VisibleAnywhere)
-	UNiagaraComponent* MuzzleFlashParticleSystem;
 
 };

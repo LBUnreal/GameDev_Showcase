@@ -86,6 +86,9 @@ void ABlasterSamCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		//Swaping Guns
 		EnhancedInputComponent->BindAction(SwapWeaponAction, ETriggerEvent::Completed, this, &ABlasterSamCharacter::SwapWeapons);
+
+		//Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ABlasterSamCharacter::Interact);
 	}
 	else
 	{
@@ -182,6 +185,51 @@ void ABlasterSamCharacter::SwapWeapons()
 	if (Weapon)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Swapping weapon to %s!"), *Weapon->GetName());
+	}
+}
+
+void ABlasterSamCharacter::Interact()
+{
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + (FollowCamera->GetForwardVector() * MaxInteractionDistance);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.0f);
+
+	FCollisionShape InteractionSphere = FCollisionShape::MakeSphere(InteractionSphereRadius);
+	DrawDebugSphere(GetWorld(), End, InteractionSphereRadius, 16, FColor::Blue, false, 5.0f);
+
+	FHitResult HitResult;
+	bool HasHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		Start, End,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		InteractionSphere);
+
+	if (HasHit)
+	{
+		AActor* HitActor = HitResult.GetActor();
+
+		if (HitActor->ActorHasTag("CollectableItem"))
+		{
+			//Hit Actor has collectable item
+			AGun* CollectableItem = Cast<AGun>(HitActor);
+
+			if (CollectableItem)
+			{
+				TSubclassOf<AGun> GunClass = CollectableItem->GetClass();
+
+				if (!GunClasses.Contains(GunClass))
+				{
+					GunClasses.Add(GunClass);
+					CollectableItem->Destroy();
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("No actor hit!"));
 	}
 }
 

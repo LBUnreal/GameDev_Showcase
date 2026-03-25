@@ -19,6 +19,7 @@ AGun::AGun()
 
 	MuzzleFlashParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Muzzle Flash Partical System"));
 	MuzzleFlashParticleSystem->SetupAttachment(GunSkeletalMeshComponent);
+	Tags.Add("CollectableItem");
 }
 
 // Called when the game starts or when spawned
