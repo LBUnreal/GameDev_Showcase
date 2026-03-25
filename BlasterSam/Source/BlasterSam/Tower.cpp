@@ -16,7 +16,14 @@ void ATower::Tick(float DeltaTime)
 
 	if (InFireRange())
 	{
-		RotateTurret(Tank->GetActorLocation());
+		if (Tank)
+		{
+			RotateTurret(Tank->GetActorLocation());
+		}
+		else if (Infantry)
+		{
+			RotateTurret(Infantry->GetActorLocation());
+		}
 	}
 }
 
@@ -33,6 +40,19 @@ void ATower::SetTank(ATank* NewTankValue)
 	}
 }
 
+ABlasterSamCharacter* ATower::GetInfantry()
+{
+	return Infantry;
+}
+
+void ATower::SetInfantry(ABlasterSamCharacter* NewInfantry)
+{
+	if (NewInfantry)
+	{
+		Infantry = NewInfantry;
+	}
+}
+
 void ATower::HandleDestruction()
 {
 	Super::HandleDestruction();
@@ -46,7 +66,11 @@ void ATower::CheckFireCondition()
 	if (Tank && Tank->GetIsAlive() && InFireRange())
 	{
 		Fire();
-	 }
+	}
+	else if (Infantry && Infantry->IsAlive && InFireRange())
+	{
+		Fire();
+	}
 }
 
 bool ATower::InFireRange()
@@ -56,6 +80,12 @@ bool ATower::InFireRange()
 		float DistanceToTank = GetDistanceTo(Tank);
 
 		return DistanceToTank <= FireRange;
+	}
+	else if (Infantry)
+	{
+		float DistanceToInfantry = GetDistanceTo(Infantry);
+
+		return DistanceToInfantry <= FireRange;
 	}
 
 	return false;
