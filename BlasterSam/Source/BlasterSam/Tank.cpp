@@ -14,20 +14,20 @@ void ATank::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//PlayerController = Cast<APlayerController>(Controller);
-	//if (PlayerController)
-	//{
-	//	if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
-	//	{
-	//		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-	//			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
-	//		{
-	//			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	//		}
-	//	}
-	//}
+	PlayerController = Cast<APlayerController>(Controller);
+	if (PlayerController)
+	{
+		if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+				ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer))
+			{
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}
+		}
+	}
 
-	//SetPlayerEnabled(false);
+	SetPlayerEnabled(false);
 }
 
 ATank::ATank()
@@ -45,35 +45,35 @@ void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//if (PlayerController)
-	//{
-	//	FHitResult HitResult;
-	//	PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
+	if (PlayerController)
+	{
+		FHitResult HitResult;
+		PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
 
-	//	RotateTurret(HitResult.ImpactPoint);
+		RotateTurret(HitResult.ImpactPoint);
 
-	//	//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 25.f, 16.f, FColor::Red);
-	//}
+		//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 25.f, 16.f, FColor::Red);
+	}
 }
 
-//void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-//{
-//	Super::SetupPlayerInputComponent(PlayerInputComponent);
-//
-//	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
-//	{
-//		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::MoveInput);
-//		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &ATank::RotateInput);
-//		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ATank::Fire);
-//	}
-//}
+void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATank::MoveInput);
+		EnhancedInputComponent->BindAction(RotateAction, ETriggerEvent::Triggered, this, &ATank::RotateInput);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &ATank::Fire);
+	}
+}
 
 void ATank::HandleDestruction()
 {
 	Super::HandleDestruction();
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
-	//SetPlayerEnabled(false);
+	SetPlayerEnabled(false);
 	IsAlive = false;
 }
 
