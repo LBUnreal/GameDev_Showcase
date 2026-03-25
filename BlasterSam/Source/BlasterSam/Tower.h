@@ -7,7 +7,6 @@
 #include "Tower.generated.h"
 
 class ATank;
-class ABlasterSamCharacter;
 
 /**
  * 
@@ -27,9 +26,6 @@ public:
 	ATank* GetTank();
 	void SetTank(ATank* NewTankValue);
 
-	ABlasterSamCharacter* GetInfantry();
-	void SetInfantry(ABlasterSamCharacter* NewInfantry);
-
 	void HandleDestruction() override;
 
 	UPROPERTY(EditAnywhere)
@@ -40,7 +36,7 @@ public:
 
 private:
 	ATank* Tank;
-	ABlasterSamCharacter* Infantry;
+
 	void CheckFireCondition();
 	bool InFireRange();
 };
