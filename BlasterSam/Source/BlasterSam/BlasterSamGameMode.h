@@ -29,6 +29,7 @@ private:
 	ATank* TankPlayer;
 	ABlasterSamCharacter* InfantryPlayer;
 	void InitializeNPCTurretTargeting();
+	void InitializeNPCInfantryTargeting();
 };
 
 

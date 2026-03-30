@@ -3,6 +3,7 @@
 #include "BlasterSamGameMode.h"
 #include "Tank.h"
 #include "Tower.h"
+#include "ShooterAI.h"
 #include "BlasterSamCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -13,7 +14,9 @@ ABlasterSamGameMode::ABlasterSamGameMode()
 
 void ABlasterSamGameMode::BeginPlay()
 {
+	Super::BeginPlay();
 	InitializeNPCTurretTargeting();
+	InitializeNPCInfantryTargeting();
 }
 
 /// <summary>
@@ -58,6 +61,27 @@ void ABlasterSamGameMode::InitializeNPCTurretTargeting()
 			}
 
 			LoopIndex++;
+		}
+	}
+}
+
+void ABlasterSamGameMode::InitializeNPCInfantryTargeting()
+{
+	//Initialize all AI Controllers with the Player
+	ABlasterSamCharacter* Player = Cast<ABlasterSamCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	TArray<AActor*> ShooterAIActors;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AShooterAI::StaticClass(), ShooterAIActors);
+
+	for (AActor* ShooterAIActor : ShooterAIActors)
+	{
+		AShooterAI* ShooterAI = Cast<AShooterAI>(ShooterAIActor);
+
+		if (ShooterAI)
+		{
+			ShooterAI->StartBehaviorTree(Player);
+			UE_LOG(LogTemp, Display, TEXT("%s starting behavior tree"), *ShooterAI->GetName());
 		}
 	}
 }
