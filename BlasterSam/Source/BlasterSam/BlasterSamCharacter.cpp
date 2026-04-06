@@ -14,6 +14,8 @@
 #include "BlasterSamPlayerController.h"
 #include "HUDWidget.h"
 #include "Gun.h"
+#include "CollectableItem.h"
+#include "Lock.h"
 
 #define LOG_WARNING(x) UE_LOG(LogTemp, Warning, TEXT(x))
 
@@ -212,17 +214,61 @@ void ABlasterSamCharacter::Interact()
 
 		if (HitActor->ActorHasTag("CollectableItem"))
 		{
-			//Hit Actor has collectable item
-			AGun* CollectableItem = Cast<AGun>(HitActor);
+			//Hit Actor as a gun item
+			AGun* GunItem = Cast<AGun>(HitActor);
 
-			if (CollectableItem)
+			//Hit Actor as a CollectableItem
+			ACollectableItem* CollectableItem = Cast<ACollectableItem>(HitActor);
+
+			if (GunItem)
 			{
-				TSubclassOf<AGun> GunClass = CollectableItem->GetClass();
+				TSubclassOf<AGun> GunClass = GunItem->GetClass();
 
 				if (!GunClasses.Contains(GunClass))
 				{
 					GunClasses.Add(GunClass);
-					CollectableItem->Destroy();
+					GunItem->Destroy();
+				}
+			}
+			else if (CollectableItem)
+			{
+				//Add the CollectableItem into the player's inventory
+				CollectableKeyList.Add(CollectableItem->ItemName);
+				CollectableItem->Destroy();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Display, TEXT("Unknown Collectable Item"));
+			}
+		}
+		else if (HitActor->ActorHasTag("Lock"))
+		{
+			//Hit Actor is a lock
+			ALock* LockActor = Cast<ALock>(HitActor);
+
+			if (LockActor)
+			{
+				if (!LockActor->GetIsKeyPlaced())
+				{
+					//Lock is empty
+					int32 ItemsRemoved = CollectableKeyList.RemoveSingle(LockActor->KeyItemName);
+					if (ItemsRemoved)
+					{
+						LockActor->SetIsKeyPlaced(true);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Display, TEXT("Key Item not in inventory"));
+					}
+				}
+				else
+				{
+					//Lock has a key inside! Pick up the key and add it to the inventory
+					//Add the key ItemName to the CollectableKeyList
+					CollectableKeyList.Add(LockActor->KeyItemName);
+
+					//Deactivate the lock.
+					LockActor->SetIsKeyPlaced(false);
 				}
 			}
 		}

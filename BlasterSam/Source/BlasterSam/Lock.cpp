@@ -3,7 +3,8 @@
 
 #include "Lock.h"
 #include "TriggerComponent.h"
-#include "Components/StaticMeshComponent.h"
+#include "CollectableItem.h"
+//#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ALock::ALock()

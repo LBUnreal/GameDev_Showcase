@@ -65,6 +65,8 @@ protected:
 	TArray<TSubclassOf<AGun>> GunClasses;
 	AGun* Weapon;
 
+	TArray<FString> CollectableKeyList;
+
 public:
 
 	/** Constructor */
