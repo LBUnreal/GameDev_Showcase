@@ -4,7 +4,6 @@
 #include "Lock.h"
 #include "TriggerComponent.h"
 #include "CollectableItem.h"
-//#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ALock::ALock()
@@ -20,6 +19,9 @@ ALock::ALock()
 
 	KeyItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Key Item Mesh"));
 	KeyItemMesh->SetupAttachment(RootComp);
+
+	KeyItemMesh2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Key Item Mesh2"));
+	KeyItemMesh2->SetupAttachment(RootComp);
 
 	Tags.Add("Lock");
 }
@@ -47,5 +49,6 @@ void ALock::SetIsKeyPlaced(bool NewIsKeyPlacedValue)
 	bIsKeyPlaced = NewIsKeyPlacedValue;
 	TriggerComp->Trigger(NewIsKeyPlacedValue);
 	KeyItemMesh->SetVisibility(NewIsKeyPlacedValue);
+	KeyItemMesh2->SetVisibility(NewIsKeyPlacedValue);
 }
 

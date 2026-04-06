@@ -41,7 +41,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* KeyItemMesh;
-
+	
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* KeyItemMesh2;
+	
 	UPROPERTY(VisibleAnywhere)
 	bool bIsKeyPlaced = false;
 };
