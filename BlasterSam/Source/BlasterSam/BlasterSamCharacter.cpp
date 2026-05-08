@@ -14,6 +14,8 @@
 #include "BlasterSamPlayerController.h"
 #include "HUDWidget.h"
 #include "Gun.h"
+#include "CollectableItem.h"
+#include "Lock.h"
 
 #define LOG_WARNING(x) UE_LOG(LogTemp, Warning, TEXT(x))
 
@@ -86,6 +88,9 @@ void ABlasterSamCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		//Swaping Guns
 		EnhancedInputComponent->BindAction(SwapWeaponAction, ETriggerEvent::Completed, this, &ABlasterSamCharacter::SwapWeapons);
+
+		//Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ABlasterSamCharacter::Interact);
 	}
 	else
 	{
@@ -182,6 +187,95 @@ void ABlasterSamCharacter::SwapWeapons()
 	if (Weapon)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Swapping weapon to %s!"), *Weapon->GetName());
+	}
+}
+
+void ABlasterSamCharacter::Interact()
+{
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + (FollowCamera->GetForwardVector() * MaxInteractionDistance);
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 5.0f);
+
+	FCollisionShape InteractionSphere = FCollisionShape::MakeSphere(InteractionSphereRadius);
+	DrawDebugSphere(GetWorld(), End, InteractionSphereRadius, 16, FColor::Blue, false, 5.0f);
+
+	FHitResult HitResult;
+	bool HasHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		Start, End,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		InteractionSphere);
+
+	if (HasHit)
+	{
+		AActor* HitActor = HitResult.GetActor();
+
+		if (HitActor->ActorHasTag("CollectableItem"))
+		{
+			//Hit Actor as a gun item
+			AGun* GunItem = Cast<AGun>(HitActor);
+
+			//Hit Actor as a CollectableItem
+			ACollectableItem* CollectableItem = Cast<ACollectableItem>(HitActor);
+
+			if (GunItem)
+			{
+				TSubclassOf<AGun> GunClass = GunItem->GetClass();
+
+				if (!GunClasses.Contains(GunClass))
+				{
+					GunClasses.Add(GunClass);
+					GunItem->Destroy();
+				}
+			}
+			else if (CollectableItem)
+			{
+				//Add the CollectableItem into the player's inventory
+				CollectableKeyList.Add(CollectableItem->ItemName);
+				CollectableItem->Destroy();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Display, TEXT("Unknown Collectable Item"));
+			}
+		}
+		else if (HitActor->ActorHasTag("Lock"))
+		{
+			//Hit Actor is a lock
+			ALock* LockActor = Cast<ALock>(HitActor);
+
+			if (LockActor)
+			{
+				if (!LockActor->GetIsKeyPlaced())
+				{
+					//Lock is empty
+					int32 ItemsRemoved = CollectableKeyList.RemoveSingle(LockActor->KeyItemName);
+					if (ItemsRemoved)
+					{
+						LockActor->SetIsKeyPlaced(true);
+					}
+					else
+					{
+						UE_LOG(LogTemp, Display, TEXT("Key Item not in inventory"));
+					}
+				}
+				else
+				{
+					//Lock has a key inside! Pick up the key and add it to the inventory
+					//Add the key ItemName to the CollectableKeyList
+					CollectableKeyList.Add(LockActor->KeyItemName);
+
+					//Deactivate the lock.
+					LockActor->SetIsKeyPlaced(false);
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("No actor hit!"));
 	}
 }
 

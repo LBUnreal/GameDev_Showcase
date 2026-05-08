@@ -28,7 +28,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-	float Damage = 25.f;
+	float Damage = 100.f;
 
 	UPROPERTY(EditAnywhere)
 	UNiagaraSystem* HitParticles;

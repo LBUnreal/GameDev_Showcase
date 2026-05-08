@@ -19,6 +19,7 @@ AGun::AGun()
 
 	MuzzleFlashParticleSystem = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Muzzle Flash Partical System"));
 	MuzzleFlashParticleSystem->SetupAttachment(GunSkeletalMeshComponent);
+	Tags.Add("CollectableItem");
 }
 
 // Called when the game starts or when spawned
@@ -52,7 +53,7 @@ void AGun::PullTrigger()
 		Params.AddIgnoredActor(this);
 		Params.AddIgnoredActor(GetOwner());
 		FVector EndLocation = ViewPointLocation + ViewPointRotation.Vector() * MaxRange;
-		bool HasHit = GetWorld()->LineTraceSingleByChannel(HitResult, ViewPointLocation, EndLocation, ECC_GameTraceChannel2, Params);
+		bool HasHit = GetWorld()->LineTraceSingleByChannel(HitResult, ViewPointLocation, EndLocation, ECC_GameTraceChannel3, Params);
 
 		if (HasHit)
 		{
